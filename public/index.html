@@ -13,85 +13,437 @@
     }
 
     body {
+      margin: 0;
       background-image: var(--bg-image-light);
       background-size: cover;
       background-attachment: fixed;
       background-position: center;
-      background-repeat: no-repeat;
-      transition: background-image 0.5s ease;
+      position: relative;
+      transition: all 0.5s ease;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      color: #1f2937;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(255,255,255,0.7) 100%);
+      z-index: -1;
+      backdrop-filter: blur(2px);
     }
 
     .dark body {
       background-image: var(--bg-image-dark);
+      color: #f3f4f6;
+    }
+
+    .dark body::before {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.3) 0%, rgba(15, 23, 42, 0.9) 100%);
+      backdrop-filter: blur(4px);
     }
 
     .layout-container {
       display: flex;
       min-height: 100vh;
+      position: relative;
     }
 
     .sidebar {
-      width: 250px;
-      background-color: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      padding: 2rem;
-      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      width: 280px;
+      background-color: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(12px);
+      padding: 2rem 1.5rem;
+      border-right: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s ease;
     }
 
     .dark .sidebar {
-      background-color: rgba(30, 41, 59, 0.9);
+      background-color: rgba(17, 76, 214, 0.97);
       color: #e5e7eb;
-      border-color: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
     }
 
     .main-content {
       flex: 1;
-      background-color: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(5px);
-      padding: 2rem;
+      background-color: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(8px);
+      padding: 2.5rem;
+      overflow-y: auto;
+      height: 100vh;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(79, 70, 229, 0.3) transparent;
+    }
+
+    .main-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .main-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .main-content::-webkit-scrollbar-thumb {
+      background-color: rgba(79, 70, 229, 0.3);
+      border-radius: 10px;
     }
 
     .dark .main-content {
-      background-color: rgba(30, 41, 59, 0.95);
-      color: #e5e7eb;
+      background-color: rgba(2, 6, 23, 0.98);
+      color: #f9fafb;
+      scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
     }
 
     .media-card {
-      background-color: rgba(255, 255, 255, 0.95);
-      border-radius: 12px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      background-color: rgba(255, 255, 255, 0.98);
+      border-radius: 16px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      overflow: auto;
+
+      /* Hide scrollbar - Webkit (Chrome, Safari) */
+      scrollbar-width: none;       /* Firefox */
+      -ms-overflow-style: none;    /* IE and Edge */
+    }
+    .media-card::-webkit-scrollbar {
+      display: none;               /* WebKit browsers */
     }
 
     .dark .media-card {
-      background-color: rgba(51, 65, 85, 0.95);
+      background-color: rgba(30, 41, 59, 0.98);
+      color: #f9fafb;
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
     .media-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .dark .media-card:hover {
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
     }
 
     .media-item {
-      animation: fadeIn 0.5s ease-out forwards;
+      animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .like-btn.active { color: #2563eb; }
-    .dislike-btn.active { color: #dc2626; }
-    .comments-box { display: none; }
+    .like-btn.active { 
+      color: #3b82f6;
+      text-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+    }
+    
+    .dislike-btn.active { 
+      color: #ef4444;
+      text-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+    }
+    
+    .comments-box { 
+      display: none;
+      animation: slideDown 0.4s ease-out forwards;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; max-height: 0; }
+      to { opacity: 1; max-height: 500px; }
+    }
+
+    /* Make description strong and visible */
+    .media-description {
+      font-weight: 600;
+      color: #4f46e5;
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .dark .media-description {
+      color: #818cf8;
+    }
 
     @media (max-width: 768px) {
-      .layout-container { flex-direction: column; }
-      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+      .layout-container { 
+        flex-direction: column; 
+      }
+      
+      .sidebar { 
+        width: 100%; 
+        border-right: none; 
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+      }
+      
+      .main-content {
+        padding: 1.5rem;
+        height: auto;
+      }
+    }
+
+    /* Slider styles */
+    #media-slider {
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 1.5rem 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      user-select: none;
+      border-radius: 0 0 16px 16px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-top: none;
+    }
+    
+    .dark #media-slider {
+      background-color: rgba(15, 23, 42, 0.95);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    
+    #media-slider h2 {
+      color: #4f46e5;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-align: center;
+      font-size: 1.25rem;
+      letter-spacing: 0.5px;
+    }
+    
+    .dark #media-slider h2 {
+      color: #818cf8;
+    }
+    
+    #slider-content {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+    
+    #slider-content > div {
+      position: relative;
+      cursor: pointer;
+      border-radius: 12px;
+      overflow: hidden;
+      height: 18rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark #slider-content > div {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    
+    #slider-content > div:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    #slider-content img,
+    #slider-content video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+      border-radius: 12px;
+    }
+    
+    #slider-content > div:hover img,
+    #slider-content > div:hover video {
+      transform: scale(1.05);
+    }
+    
+    #slider-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    
+    #slider-controls button {
+      background: rgba(79, 70, 229, 0.1);
+      border: none;
+      color: #4f46e5;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .dark #slider-controls button {
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+    }
+    
+    #slider-controls button:hover {
+      background: rgba(79, 70, 229, 0.2);
+      color: #4338ca;
+      transform: translateY(-1px);
+    }
+    
+    .dark #slider-controls button:hover {
+      background: rgba(99, 102, 241, 0.3);
+      color: #818cf8;
+    }
+    
+    /* Enhanced filter buttons */
+    .filter-btn {
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+    
+    .filter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark .filter-btn:not(.bg-indigo-600) {
+      background-color: rgba(30, 41, 59, 0.8);
+      color: #e5e7eb;
+    }
+    
+    /* Enhanced comment section */
+    .comments-box form input,
+    .comments-box form textarea {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+      border-radius: 6px;
+    }
+    
+    .dark .comments-box form input,
+    .dark .comments-box form textarea {
+      background: rgba(30, 41, 59, 0.9);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #f3f4f6;
+    }
+    
+    .comments-box form input:focus,
+    .comments-box form textarea:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+    }
+    
+    .dark .comments-box form input:focus,
+    .dark .comments-box form textarea:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+    }
+    
+    /* Enhanced toggle button */
+    button[onclick="toggleDarkMode()"] {
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      background-color: #f3f4f6;
+      color: #1f2937;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    
+    .dark button[onclick="toggleDarkMode()"] {
+      background-color: rgba(30, 41, 59, 0.8);
+      color: #e5e7eb;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    button[onclick="toggleDarkMode()"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Subscribe button enhancement */
+    a[href="registeruser.html"] {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      font-weight: 600;
+    }
+    
+    a[href="registeruser.html"]::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+      z-index: 0;
+    }
+    
+    a[href="registeruser.html"]:hover::before {
+      left: 100%;
+    }
+    
+    a[href="registeruser.html"] > * {
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Search input enhancement */
+    #search-input {
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-size: 1rem;
+      padding: 0.75rem 1rem;
+    }
+    
+    .dark #search-input {
+      background: rgba(30, 41, 59, 0.95);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #f3f4f6;
+    }
+    
+    #search-input:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+    
+    .dark #search-input:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
     }
   </style>
 </head>
 <body>
+
+  <!-- Additional Div: Animated media slider -->
+  <section id="media-slider" aria-label="Media preview slider">
+    <h2>SAINTS HISTORY AND PHOTO</h2>
+    <div id="slider-controls">
+      <button id="prev-btn" aria-label="Previous media" title="Previous" type="button"><i class="fas fa-arrow-left"></i> Prev</button>
+      <button id="pause-btn" aria-label="Pause slider" title="Pause" type="button">⏸ Pause</button>
+      <button id="next-btn" aria-label="Next media" title="Next" type="button">Next <i class="fas fa-arrow-right"></i></button>
+    </div>
+    <div id="slider-content" role="list" aria-live="polite" aria-atomic="true"></div>
+  </section>
+
   <div class="layout-container">
     <!-- Sidebar -->
     <div class="sidebar">
@@ -103,7 +455,7 @@
           <p class="text-sm mt-1">Discover and interact with sacred content</p>
         </div>
 
-        <input type="text" id="search-input" placeholder="Search media..." class="w-full p-3 border border-gray-300 rounded-xl mb-6" />
+        <input type="text" id="search-input" placeholder="Search media..." class="w-full mb-6" />
 
         <div class="space-y-2 mb-6">
           <button class="filter-btn w-full px-4 py-2 rounded-lg bg-indigo-600 text-white" data-filter="all">
@@ -120,7 +472,7 @@
           </button>
         </div>
 
-        <button onclick="toggleDarkMode()" class="mb-4 w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg">
+        <button onclick="toggleDarkMode()" class="mb-4 w-full">
           🌙 Toggle Dark Mode
         </button>
 
@@ -138,11 +490,73 @@
 
   <script>
     let allMedia = [];
+    let currentIndex = 0;
+    let sliderInterval = null;
+    let isPaused = false;
 
     async function fetchMedia() {
       const res = await fetch('/media');
       allMedia = await res.json();
+
       renderGallery(allMedia);
+      updateSlider();
+      startSlider();
+    }
+
+    function startSlider() {
+      if (sliderInterval) clearInterval(sliderInterval);
+      sliderInterval = setInterval(() => {
+        nextSlider();
+      }, 5000);
+    }
+
+    function stopSlider() {
+      if (sliderInterval) {
+        clearInterval(sliderInterval);
+        sliderInterval = null;
+      }
+    }
+
+    function toggleSliderPause() {
+      if (isPaused) {
+        startSlider();
+        document.getElementById('pause-btn').textContent = '⏸ Pause';
+        document.getElementById('pause-btn').setAttribute('aria-label', 'Pause slider');
+      } else {
+        stopSlider();
+        document.getElementById('pause-btn').textContent = '▶️ Resume';
+        document.getElementById('pause-btn').setAttribute('aria-label', 'Resume slider');
+      }
+      isPaused = !isPaused;
+    }
+
+    function nextSlider() {
+      currentIndex = (currentIndex + 1) % allMedia.length;
+      updateSlider();
+    }
+
+    function prevSlider() {
+      currentIndex = (currentIndex - 1 + allMedia.length) % allMedia.length;
+      updateSlider();
+    }
+
+    function updateSlider() {
+      const slider = document.getElementById('slider-content');
+      slider.innerHTML = '';
+      for (let i = 0; i < 5; i++) {
+        const media = allMedia[(currentIndex + i) % allMedia.length];
+        if (!media) continue;
+        let content = '';
+        if (media.type === 'photo') {
+          content = `<img src="${media.url}" alt="${media.name}" onclick="window.open('${media.url}', '_blank')" class="rounded" />`;
+        } else if (media.type === 'video') {
+          content = `<video src="${media.url}" onclick="window.open('${media.url}', '_blank')" muted autoplay loop class="rounded"></video>`;
+        } else {
+          // Skip other media types in preview slider
+          continue;
+        }
+        slider.innerHTML += `<div role="listitem">${content}</div>`;
+      }
     }
 
     function renderGallery(mediaList) {
@@ -157,16 +571,12 @@
 
       let mediaContent = '';
       if (media.type === 'photo') {
-        mediaContent = `<img src="${media.url}" class="w-full h-48 object-cover rounded mb-3">`;
+        mediaContent = `<img src="${media.url}" class="w-full h-78 object-cover rounded mb-3" alt="${media.name}">`;
       } else if (media.type === 'video') {
-        mediaContent = `<video src="${media.url}" controls class="w-full h-48 rounded mb-3"></video>`;
+        mediaContent = `<video src="${media.url}" controls class="w-full h-78 rounded mb-3"></video>`;
       } else if (media.type === 'audio') {
         mediaContent = `<audio src="${media.url}" controls class="w-full rounded mb-3"></audio>`;
       }
-
-      const formattedDate = new Date(media.date).toLocaleDateString('en-US', {
-        year: 'numeric', month: 'short', day: 'numeric'
-      });
 
       const commentsHTML = (media.comments || []).map(c => `
         <div class="bg-gray-100 p-2 rounded text-sm mb-1">
@@ -177,8 +587,7 @@
       div.innerHTML = `
         ${mediaContent}
         <h3 class="text-lg font-semibold">${media.name}</h3>
-        <p class="text-sm mb-1">${media.description}</p>
-        <p class="text-xs text-gray-400 mb-2">Uploaded: ${formattedDate}</p>
+        <p class="media-description">${media.description}</p>
 
         <div class="flex justify-between items-center mb-2">
           <div class="flex gap-2">
@@ -236,7 +645,6 @@
       fetchMedia();
     }
 
-    // Filtering
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-indigo-600', 'text-white'));
@@ -247,7 +655,6 @@
       });
     });
 
-    // Search
     document.getElementById('search-input').addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase();
       const filtered = allMedia.filter(m =>
@@ -256,10 +663,26 @@
       renderGallery(filtered);
     });
 
-    // Dark mode toggle
     function toggleDarkMode() {
       document.documentElement.classList.toggle('dark');
     }
+
+    // Button event listeners for slider controls
+    document.getElementById('pause-btn').addEventListener('click', toggleSliderPause);
+    document.getElementById('next-btn').addEventListener('click', () => {
+      nextSlider();
+      if (!isPaused) {
+        stopSlider();
+        startSlider();
+      }
+    });
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      prevSlider();
+      if (!isPaused) {
+        stopSlider();
+        startSlider();
+      }
+    });
 
     fetchMedia();
   </script>
