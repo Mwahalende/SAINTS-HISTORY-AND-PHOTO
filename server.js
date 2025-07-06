@@ -60,7 +60,7 @@ const Comment = require('./models/Comment');
 passport.use(new GoogleStrategy({
   clientID: '199468518160-0ubjlcvm41a5gk0ud78fkpfuu5kn0v7a.apps.googleusercontent.com',
   clientSecret: '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',
-  callbackURL: '/auth/google/callback'
+  callbackURL: 'https://saints-history-and-photo.onrender.com'
 }, async (accessToken, refreshToken, profile, done) => {
   let admin = await Admin.findOne({ googleId: profile.id });
   if (!admin) {
