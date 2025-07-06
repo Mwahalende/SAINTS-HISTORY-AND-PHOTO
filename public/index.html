@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saints Media Gallery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg-image-light: url('https://images.unsplash.com/photo-1524069634943-d0b6edb9fc96?auto=format&fit=crop&w=1950&q=80');
+      --bg-image-dark: url('https://images.unsplash.com/photo-1593642532973-d31b6557fa68?auto=format&fit=crop&w=1950&q=80');
+    }
+
+    body {
+      background-image: var(--bg-image-light);
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: background-image 0.5s ease;
+    }
+
+    .dark body {
+      background-image: var(--bg-image-dark);
+    }
+
+    .layout-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .dark .sidebar {
+      background-color: rgba(30, 41, 59, 0.9);
+      color: #e5e7eb;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .main-content {
+      flex: 1;
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(5px);
+      padding: 2rem;
+    }
+
+    .dark .main-content {
+      background-color: rgba(30, 41, 59, 0.95);
+      color: #e5e7eb;
+    }
+
+    .media-card {
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark .media-card {
+      background-color: rgba(51, 65, 85, 0.95);
+    }
+
+    .media-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .media-item {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .like-btn.active { color: #2563eb; }
+    .dislike-btn.active { color: #dc2626; }
+    .comments-box { display: none; }
+
+    @media (max-width: 768px) {
+      .layout-container { flex-direction: column; }
+      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="flex flex-col h-full">
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold flex items-center">
+            <i class="fas fa-photo-video text-indigo-600 mr-2"></i> Saints Gallery
+          </h1>
+          <p class="text-sm mt-1">Discover and interact with sacred content</p>
+        </div>
+
+        <input type="text" id="search-input" placeholder="Search media..." class="w-full p-3 border border-gray-300 rounded-xl mb-6" />
+
+        <div class="space-y-2 mb-6">
+          <button class="filter-btn w-full px-4 py-2 rounded-lg bg-indigo-600 text-white" data-filter="all">
+            <i class="fas fa-layer-group mr-2"></i> All Media
+          </button>
+          <button class="filter-btn w-full px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-indigo-50" data-filter="photo">
+            <i class="fas fa-image mr-2"></i> Photos
+          </button>
+          <button class="filter-btn w-full px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-indigo-50" data-filter="video">
+            <i class="fas fa-video mr-2"></i> Videos
+          </button>
+          <button class="filter-btn w-full px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-indigo-50" data-filter="audio">
+            <i class="fas fa-music mr-2"></i> Audio
+          </button>
+        </div>
+
+        <button onclick="toggleDarkMode()" class="mb-4 w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg">
+          🌙 Toggle Dark Mode
+        </button>
+
+        <a href="registeruser.html" class="block mt-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg text-center shadow-md">
+          <i class="fas fa-bell mr-2"></i> Subscribe
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+  </div>
+
+  <script>
+    let allMedia = [];
+
+    async function fetchMedia() {
+      const res = await fetch('/media');
+      allMedia = await res.json();
+      renderGallery(allMedia);
+    }
+
+    function renderGallery(mediaList) {
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+      mediaList.forEach(media => gallery.appendChild(createMediaCard(media)));
+    }
+
+    function createMediaCard(media) {
+      const div = document.createElement('div');
+      div.className = 'media-item media-card p-4 media-container';
+
+      let mediaContent = '';
+      if (media.type === 'photo') {
+        mediaContent = `<img src="${media.url}" class="w-full h-48 object-cover rounded mb-3">`;
+      } else if (media.type === 'video') {
+        mediaContent = `<video src="${media.url}" controls class="w-full h-48 rounded mb-3"></video>`;
+      } else if (media.type === 'audio') {
+        mediaContent = `<audio src="${media.url}" controls class="w-full rounded mb-3"></audio>`;
+      }
+
+      const formattedDate = new Date(media.date).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric'
+      });
+
+      const commentsHTML = (media.comments || []).map(c => `
+        <div class="bg-gray-100 p-2 rounded text-sm mb-1">
+          <strong class="text-indigo-600">${c.userEmail}</strong>: ${c.text}
+        </div>
+      `).join('');
+
+      div.innerHTML = `
+        ${mediaContent}
+        <h3 class="text-lg font-semibold">${media.name}</h3>
+        <p class="text-sm mb-1">${media.description}</p>
+        <p class="text-xs text-gray-400 mb-2">Uploaded: ${formattedDate}</p>
+
+        <div class="flex justify-between items-center mb-2">
+          <div class="flex gap-2">
+            <button onclick="likeMedia('${media._id}')" class="like-btn text-sm hover:text-blue-600">👍 ${media.likes}</button>
+            <button onclick="dislikeMedia('${media._id}')" class="dislike-btn text-sm hover:text-red-600">👎 ${media.dislikes}</button>
+          </div>
+          <a href="${media.url}" download class="text-gray-500 hover:text-indigo-600"><i class="fas fa-download"></i></a>
+        </div>
+
+        <div class="text-sm text-gray-500 mb-2 flex justify-between">
+          <span><i class="fas fa-comments mr-1"></i>${media.comments?.length || 0} Comments</span>
+          <button onclick="toggleComments('${media._id}')" class="text-indigo-600 hover:underline text-xs">📨 Show Comments</button>
+        </div>
+
+        <div class="comments-box" id="comments-${media._id}">
+          ${commentsHTML || '<p class="text-gray-400 text-sm">No comments yet</p>'}
+          <form onsubmit="submitComment(event, '${media._id}')">
+            <input type="email" name="email" required placeholder="Your email" class="w-full p-2 mt-2 border rounded" />
+            <textarea name="text" required placeholder="Add comment..." class="w-full p-2 mt-2 border rounded"></textarea>
+            <button type="submit" class="mt-2 bg-indigo-600 text-white px-4 py-2 rounded">Comment</button>
+          </form>
+        </div>
+      `;
+      return div;
+    }
+
+    function toggleComments(mediaId) {
+      const box = document.getElementById(`comments-${mediaId}`);
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    async function likeMedia(id) {
+      await fetch(`/like/${id}`, { method: 'POST' });
+      fetchMedia();
+    }
+
+    async function dislikeMedia(id) {
+      await fetch(`/dislike/${id}`, { method: 'POST' });
+      fetchMedia();
+    }
+
+    async function submitComment(e, mediaId) {
+      e.preventDefault();
+      const form = e.target;
+      const email = form.email.value;
+      const text = form.text.value;
+
+      await fetch(`/comment/${mediaId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, email })
+      });
+
+      form.reset();
+      fetchMedia();
+    }
+
+    // Filtering
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-indigo-600', 'text-white'));
+        btn.classList.add('bg-indigo-600', 'text-white');
+        const filter = btn.dataset.filter;
+        const filtered = filter === 'all' ? allMedia : allMedia.filter(m => m.type === filter);
+        renderGallery(filtered);
+      });
+    });
+
+    // Search
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = allMedia.filter(m =>
+        m.name.toLowerCase().includes(query) || m.description.toLowerCase().includes(query)
+      );
+      renderGallery(filtered);
+    });
+
+    // Dark mode toggle
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    fetchMedia();
+  </script>
+</body>
+</html>

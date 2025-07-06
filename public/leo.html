@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .profile-letter {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            color: white;
+            font-weight: bold;
+        }
+        .media-card {
+            transition: all 0.3s ease;
+        }
+        .media-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .recording {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        #videoPreview, #audioVisualizer {
+            width: 100%;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Auth Pages -->
+    <div id="authContainer" class="min-h-screen flex items-center justify-center p-4">
+        <!-- Registration Page -->
+        <div id="registerPage" class="w-full max-w-md bg-white rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Admin Registration</h2>
+            <form id="registerForm" class="space-y-4">
+                <div>
+                    <label for="regEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="regEmail" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="regPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="regPassword" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="regConfirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                    <input type="password" id="regConfirmPassword" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Register</button>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">Already have an account? <a href="#" id="showLogin" class="text-blue-600 hover:text-blue-500">Login here</a></p>
+                </div>
+                <div class="mt-4">
+                    <button type="button" id="googleRegister" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="h-5 w-5 mr-2">
+                        Continue with Google
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Login Page (hidden initially) -->
+        <div id="loginPage" class="w-full max-w-md bg-white rounded-lg shadow-md p-8 hidden">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Admin Login</h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label for="loginEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="loginEmail" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="loginPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="loginPassword" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="rememberMe" name="rememberMe" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                    </div>
+                    <div class="text-sm">
+                        <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Forgot password?</a>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Login</button>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">Don't have an account? <a href="#" id="showRegister" class="text-blue-600 hover:text-blue-500">Register here</a></p>
+                </div>
+                <div class="mt-4">
+                    <button type="button" id="googleLogin" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="h-5 w-5 mr-2">
+                        Continue with Google
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard (hidden initially) -->
+    <div id="adminDashboard" class="hidden">
+        <!-- Sidebar -->
+        <div class="fixed inset-y-0 left-0 w-64 bg-gray-800 text-white overflow-y-auto">
+            <div class="flex items-center justify-center h-16 bg-gray-900">
+                <span class="text-xl font-semibold">Admin Dashboard</span>
+            </div>
+            <div class="p-4 flex flex-col items-center border-b border-gray-700">
+                <div class="relative mb-3">
+                    <div id="profileLetter" class="profile-letter text-xl"></div>
+                    <label for="profileUpload" class="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-1 cursor-pointer">
+                        <i class="fas fa-camera"></i>
+                        <input type="file" id="profileUpload" accept="image/*" class="hidden">
+                    </label>
+                </div>
+                <div id="adminEmail" class="text-sm text-gray-300"></div>
+            </div>
+            <nav class="mt-4">
+                <div class="px-4">
+                    <label for="searchMedia" class="block text-sm font-medium text-gray-300 mb-2">Search Media</label>
+                    <input type="text" id="searchMedia" placeholder="Search by name..." class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div class="px-4 mt-4">
+                    <label for="filterDate" class="block text-sm font-medium text-gray-300 mb-2">Filter by Date</label>
+                    <input type="date" id="filterDate" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div class="mt-6">
+                    <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Media Types</h3>
+                    <div class="mt-2">
+                        <a href="#" class="media-filter block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white" data-type="all">All Media</a>
+                        <a href="#" class="media-filter block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white" data-type="photo">Photos</a>
+                        <a href="#" class="media-filter block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white" data-type="audio">Audio</a>
+                        <a href="#" class="media-filter block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white" data-type="video">Videos</a>
+                    </div>
+                </div>
+                <div class="mt-6 border-t border-gray-700 pt-4">
+                    <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions</h3>
+                    <div class="mt-2">
+                        <a href="#" id="changePasswordBtn" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">Change Password</a>
+                        <a href="#" id="logoutBtn" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">Logout</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="ml-64">
+            <!-- Header -->
+            <header class="bg-white shadow-sm">
+                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                    <h1 class="text-lg font-semibold text-gray-900">Media Management</h1>
+                    <button id="addMediaBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-plus mr-2"></i> Add Media
+                    </button>
+                </div>
+            </header>
+
+            <!-- Media Upload Modal -->
+            <div id="mediaUploadModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
+                <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center border-b pb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Upload New Media</h3>
+                            <button id="closeModalBtn" class="text-gray-400 hover:text-gray-500">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mt-4">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Media Type</label>
+                                <div class="flex space-x-4">
+                                    <button type="button" data-type="photo" class="media-type-btn flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <i class="fas fa-image mr-2"></i> Photo
+                                    </button>
+                                    <button type="button" data-type="audio" class="media-type-btn flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <i class="fas fa-microphone mr-2"></i> Audio
+                                    </button>
+                                    <button type="button" data-type="video" class="media-type-btn flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <i class="fas fa-video mr-2"></i> Video
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Photo Upload Section -->
+                            <div id="photoUploadSection" class="hidden">
+                                <div class="mb-4">
+                                    <label for="photoName" class="block text-sm font-medium text-gray-700">Photo Name</label>
+                                    <input type="text" id="photoName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="photoDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                                    <textarea id="photoDescription" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700">Upload Photo</label>
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                        <div class="space-y-1 text-center">
+                                            <div class="flex text-sm text-gray-600">
+                                                <label for="photoFile" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                                    <span>Upload a file</span>
+                                                    <input id="photoFile" type="file" accept="image/*" class="sr-only">
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                        </div>
+                                    </div>
+                                    <div id="photoPreview" class="mt-2 hidden">
+                                        <img id="photoPreviewImg" src="#" alt="Preview" class="max-h-40 rounded-md">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Audio Upload Section -->
+                            <div id="audioUploadSection" class="hidden">
+                                <div class="mb-4">
+                                    <label for="audioName" class="block text-sm font-medium text-gray-700">Audio Name</label>
+                                    <input type="text" id="audioName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="audioDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                                    <textarea id="audioDescription" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700">Upload or Record Audio</label>
+                                    <div class="mt-2 flex space-x-4">
+                                        <button type="button" id="startAudioRecording" class="flex-1 py-2 px-4 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                            <i class="fas fa-microphone mr-2"></i> Record
+                                        </button>
+                                        <button type="button" id="stopAudioRecording" class="flex-1 py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 hidden">
+                                            <i class="fas fa-stop mr-2"></i> Stop
+                                        </button>
+                                    </div>
+                                    <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                        <div class="space-y-1 text-center">
+                                            <div class="flex text-sm text-gray-600">
+                                                <label for="audioFile" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                                    <span>Upload a file</span>
+                                                    <input id="audioFile" type="file" accept="audio/*" class="sr-only">
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">MP3, WAV up to 20MB</p>
+                                        </div>
+                                    </div>
+                                    <div id="audioVisualizer" class="mt-2 h-16 hidden"></div>
+                                    <audio id="audioPreview" controls class="mt-2 w-full hidden"></audio>
+                                </div>
+                            </div>
+
+                            <!-- Video Upload Section -->
+                            <div id="videoUploadSection" class="hidden">
+                                <div class="mb-4">
+                                    <label for="videoName" class="block text-sm font-medium text-gray-700">Video Name</label>
+                                    <input type="text" id="videoName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="videoDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                                    <textarea id="videoDescription" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700">Upload or Record Video</label>
+                                    <div class="mt-2 flex space-x-4">
+                                        <button type="button" id="startVideoRecording" class="flex-1 py-2 px-4 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                            <i class="fas fa-video mr-2"></i> Record
+                                        </button>
+                                        <button type="button" id="stopVideoRecording" class="flex-1 py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 hidden">
+                                            <i class="fas fa-stop mr-2"></i> Stop
+                                        </button>
+                                    </div>
+                                    <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                        <div class="space-y-1 text-center">
+                                            <div class="flex text-sm text-gray-600">
+                                                <label for="videoFile" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                                    <span>Upload a file</span>
+                                                    <input id="videoFile" type="file" accept="video/*" class="sr-only">
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">MP4, MOV up to 50MB</p>
+                                        </div>
+                                    </div>
+                                    <video id="videoPreview" controls class="mt-2 hidden"></video>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 flex justify-end space-x-3">
+                                <button type="button" id="cancelUploadBtn" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Cancel
+                                </button>
+                                <button type="button" id="submitMediaBtn" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Upload
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Password Modal -->
+            <div id="changePasswordModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center border-b pb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Change Password</h3>
+                            <button id="closePasswordModalBtn" class="text-gray-400 hover:text-gray-500">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mt-4 space-y-4">
+                            <div>
+                                <label for="currentPassword" class="block text-sm font-medium text-gray-700">Current Password</label>
+                                <input type="password" id="currentPassword" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="newPassword" class="block text-sm font-medium text-gray-700">New Password</label>
+                                <input type="password" id="newPassword" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="confirmNewPassword" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                                <input type="password" id="confirmNewPassword" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div class="mt-6 flex justify-end space-x-3">
+                                <button type="button" id="cancelPasswordChangeBtn" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Cancel
+                                </button>
+                                <button type="button" id="submitPasswordChangeBtn" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Change Password
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Gallery -->
+            <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div id="mediaGallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Media items will be dynamically inserted here -->
+                    <div class="text-center py-10">
+                        <i class="fas fa-spinner fa-spin text-gray-400 text-3xl"></i>
+                        <p class="mt-2 text-gray-500">Loading media...</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Media Page (hidden initially) -->
+    <div id="mediaPage" class="hidden">
+        <div class="bg-white">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="lg:grid lg:grid-cols-3 lg:gap-8">
+                    <!-- Sidebar with media list -->
+                    <div class="lg:col-span-1">
+                        <div class="sticky top-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-6">Media Gallery</h2>
+                            <div class="mb-4">
+                                <input type="text" id="mediaSearch" placeholder="Search media..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="space-y-2">
+                                <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md">All Media</a>
+                                <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">Photos</a>
+                                <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">Audio</a>
+                                <a href="#" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">Videos</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main content with selected media -->
+                    <div class="lg:col-span-2 mt-8 lg:mt-0">
+                        <div id="selectedMedia" class="bg-white rounded-lg shadow overflow-hidden">
+                            <!-- Default state when no media is selected -->
+                            <div id="noMediaSelected" class="text-center py-16">
+                                <i class="fas fa-image text-gray-300 text-5xl mb-4"></i>
+                                <h3 class="text-lg font-medium text-gray-900">No media selected</h3>
+                                <p class="mt-1 text-sm text-gray-500">Select a media item from the list to view details</p>
+                            </div>
+
+                            <!-- Photo detail view (hidden initially) -->
+                            <div id="photoDetailView" class="hidden">
+                                <div class="bg-gray-100 p-4">
+                                    <img id="selectedPhoto" src="" alt="" class="w-full h-auto rounded-lg">
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 id="photoTitle" class="text-xl font-bold text-gray-900"></h3>
+                                            <p id="photoDate" class="text-sm text-gray-500 mt-1"></p>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button class="p-2 rounded-full hover:bg-gray-100">
+                                                <i class="fas fa-download text-gray-600"></i>
+                                            </button>
+                                            <button class="p-2 rounded-full hover:bg-gray-100">
+                                                <i class="fas fa-share-alt text-gray-600"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p id="photoDesc" class="mt-4 text-gray-700"></p>
+                                    <div class="mt-6 pt-6 border-t border-gray-200">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex space-x-4">
+                                                <button id="likePhotoBtn" class="flex items-center space-x-1 text-gray-500 hover:text-red-500">
+                                                    <i class="far fa-heart"></i>
+                                                    <span id="likeCount">0</span>
+                                                </button>
+                                                <button id="dislikePhotoBtn" class="flex items-center space-x-1 text-gray-500 hover:text-blue-500">
+                                                    <i class="far fa-thumbs-down"></i>
+                                                    <span id="dislikeCount">0</span>
+                                                </button>
+                                            </div>
+                                            <span class="text-sm text-gray-500">
+                                                <i class="fas fa-eye mr-1"></i>
+                                                <span id="viewCount">0</span> views
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-6">
+                                        <h4 class="text-lg font-medium text-gray-900">Comments</h4>
+                                        <div class="mt-4">
+                                            <div class="flex">
+                                                <div class="flex-shrink-0 mr-3">
+                                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                                        <i class="fas fa-user text-gray-500"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <textarea id="commentInput" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Add a comment..."></textarea>
+                                                    <div class="mt-2 flex justify-end">
+                                                        <button id="postCommentBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                            Post
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="commentsContainer" class="mt-6 space-y-4">
+                                            <!-- Comments will be dynamically inserted here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Audio detail view (hidden initially) -->
+                            <div id="audioDetailView" class="hidden">
+                                <!-- Similar structure to photoDetailView but for audio -->
+                            </div>
+
+                            <!-- Video detail view (hidden initially) -->
+                            <div id="videoDetailView" class="hidden">
+                                <!-- Similar structure to photoDetailView but for video -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Registration Page (hidden initially) -->
+    <div id="userRegistrationPage" class="min-h-screen flex items-center justify-center p-4 hidden">
+        <div class="w-full max-w-md bg-white rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">User Registration</h2>
+            <p class="text-sm text-gray-600 mb-4">Register to receive notifications when new content is posted.</p>
+            <form id="userRegisterForm" class="space-y-4">
+                <div>
+                    <label for="userEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="userEmail" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="userPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="userPassword" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="userConfirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                    <input type="password" id="userConfirmPassword" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center">
+                    <input id="receiveNotifications" name="receiveNotifications" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="receiveNotifications" class="ml-2 block text-sm text-gray-700">Receive email notifications</label>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Register</button>
+                </div>
+                <div class="mt-4">
+                    <button type="button" id="googleUserRegister" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="h-5 w-5 mr-2">
+                        Continue with Google
+                    </button>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">Already have an account? <a href="#" id="showUserLogin" class="text-blue-600 hover:text-blue-500">Login here</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Simulated database for demo purposes
+        const simulatedDB = {
+            admin: {
+                email: '',
+                password: '',
+                profilePhoto: null,
+                media: []
+            },
+            users: [],
+            currentUser: null,
+            currentAdmin: null
+        };
+
+        // DOM Elements
+        const authContainer = document.getElementById('authContainer');
+        const registerPage = document.getElementById('registerPage');
+        const loginPage = document.getElementById('loginPage');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const mediaPage = document.getElementById('mediaPage');
+        const userRegistrationPage = document.getElementById('userRegistrationPage');
+        
+        // Auth forms
+        const registerForm = document.getElementById('registerForm');
+        const loginForm = document.getElementById('loginForm');
+        const userRegisterForm = document.getElementById('userRegisterForm');
+        
+        // Buttons for switching between auth pages
+        const showLogin = document.getElementById('showLogin');
+        const showRegister = document.getElementById('showRegister');
+        const showUserLogin = document.getElementById('showUserLogin');
+        
+        // Admin dashboard elements
+        const profileLetter = document.getElementById('profileLetter');
+        const adminEmail = document.getElementById('adminEmail');
+        const addMediaBtn = document.getElementById('addMediaBtn');
+        const mediaGallery = document.getElementById('mediaGallery');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        
+        // Modals
+        const mediaUploadModal = document.getElementById('mediaUploadModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelUploadBtn = document.getElementById('cancelUploadBtn');
+        const submitMediaBtn = document.getElementById('submitMediaBtn');
+        
+        const changePasswordModal = document.getElementById('changePasswordModal');
+        const closePasswordModalBtn = document.getElementById('closePasswordModalBtn');
+        const cancelPasswordChangeBtn = document.getElementById('cancelPasswordChangeBtn');
+        const submitPasswordChangeBtn = document.getElementById('submitPasswordChangeBtn');
+        
+        // Media type sections
+        const photoUploadSection = document.getElementById('photoUploadSection');
+        const audioUploadSection = document.getElementById('audioUploadSection');
+        const videoUploadSection = document.getElementById('videoUploadSection');
+        
+        // Media type buttons
+        const mediaTypeBtns = document.querySelectorAll('.media-type-btn');
+        
+        // Event Listeners
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+        });
+        
+        showRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginPage.classList.add('hidden');
+            registerPage.classList.remove('hidden');
+        });
+        
+        showUserLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            userRegistrationPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+        });
+        
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            // In a real app, this would be an API call to your backend
+            simulatedDB.admin.email = email;
+            simulatedDB.admin.password = password;
+            simulatedDB.currentAdmin = { email, password };
+            
+            // Show login page after registration
+            registerPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            
+            alert('Registration successful! Please login.');
+        });
+        
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // In a real app, this would be an API call to your backend
+            if (simulatedDB.admin.email === email && simulatedDB.admin.password === password) {
+                simulatedDB.currentAdmin = { email, password };
+                authContainer.classList.add('hidden');
+                adminDashboard.classList.remove('hidden');
+                
+                // Set admin info
+                profileLetter.textContent = email.charAt(0).toUpperCase();
+                adminEmail.textContent = email;
+                
+                // Load media (simulated)
+                loadAdminMedia();
+            } else {
+                alert('Invalid credentials!');
+            }
+        });
+        
+        userRegisterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const confirmPassword = document.getElementById('userConfirmPassword').value;
+            const receiveNotifications = document.getElementById('receiveNotifications').checked;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            // In a real app, this would be an API call to your backend
+            simulatedDB.users.push({
+                email,
+                password,
+                receiveNotifications,
+                subscribed: true
+            });
+            
+            alert('Registration successful! You will now receive notifications.');
+            userRegistrationPage.classList.add('hidden');
+            // In a real app, you might redirect to a user dashboard or back to media page
+        });
+        
+        addMediaBtn.addEventListener('click', () => {
+            mediaUploadModal.classList.remove('hidden');
+        });
+        
+        closeModalBtn.addEventListener('click', () => {
+            mediaUploadModal.classList.add('hidden');
+            resetMediaUploadForm();
+        });
+        
+        cancelUploadBtn.addEventListener('click', () => {
+            mediaUploadModal.classList.add('hidden');
+            resetMediaUploadForm();
+        });
+        
+        changePasswordBtn.addEventListener('click', () => {
+            changePasswordModal.classList.remove('hidden');
+        });
+        
+        closePasswordModalBtn.addEventListener('click', () => {
+            changePasswordModal.classList.add('hidden');
+            resetPasswordForm();
+        });
+        
+        cancelPasswordChangeBtn.addEventListener('click', () => {
+            changePasswordModal.classList.add('hidden');
+            resetPasswordForm();
+        });
+        
+        submitPasswordChangeBtn.addEventListener('click', () => {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (newPassword !== confirmNewPassword) {
+                alert('New passwords do not match!');
+                return;
+            }
+            
+            if (currentPassword !== simulatedDB.admin.password) {
+                alert('Current password is incorrect!');
+                return;
+            }
+            
+            // In a real app, this would be an API call to your backend
+            simulatedDB.admin.password = newPassword;
+            simulatedDB.currentAdmin.password = newPassword;
+            
+            alert('Password changed successfully!');
+            changePasswordModal.classList.add('hidden');
+            resetPasswordForm();
+        });
+        
+        logoutBtn.addEventListener('click', () => {
+            // In a real app, you would also clear the session/token
+            simulatedDB.currentAdmin = null;
+            adminDashboard.classList.add('hidden');
+            authContainer.classList.remove('hidden');
+            loginPage.classList.add('hidden');
+            registerPage.classList.remove('hidden');
+            resetMediaUploadForm();
+            resetPasswordForm();
+        });
+        
+        // Media type selection
+        mediaTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.getAttribute('data-type');
+                
+                // Hide all sections first
+                photoUploadSection.classList.add('hidden');
+                audioUploadSection.classList.add('hidden');
+                videoUploadSection.classList.add('hidden');
+                
+                // Show selected section
+                if (type === 'photo') {
+                    photoUploadSection.classList.remove('hidden');
+                } else if (type === 'audio') {
+                    audioUploadSection.classList.remove('hidden');
+                } else if (type === 'video') {
+                    videoUploadSection.classList.remove('hidden');
+                }
+                
+                // Update active state on buttons
+                mediaTypeBtns.forEach(b => {
+                    b.classList.remove('bg-blue-100', 'border-blue-500');
+                });
+                btn.classList.add('bg-blue-100', 'border-blue-500');
+            });
+        });
+        
+        // Photo file upload preview
+        document.getElementById('photoFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('photoPreviewImg').src = event.target.result;
+                    document.getElementById('photoPreview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Submit media (simulated)
+        submitMediaBtn.addEventListener('click', () => {
+            let mediaItem = {};
+            
+            if (!photoUploadSection.classList.contains('hidden')) {
+                const name = document.getElementById('photoName').value;
+                const description = document.getElementById('photoDescription').value;
+                const file = document.getElementById('photoFile').files[0];
+                
+                if (!name || !file) {
+                    alert('Please provide a name and select a photo!');
+                    return;
+                }
+                
+                mediaItem = {
+                    id: Date.now(),
+                    type: 'photo',
+                    name,
+                    description,
+                    url: URL.createObjectURL(file),
+                    date: new Date().toISOString()
+                };
+            } 
+            else if (!audioUploadSection.classList.contains('hidden')) {
+                const name = document.getElementById('audioName').value;
+                const description = document.getElementById('audioDescription').value;
+                const file = document.getElementById('audioFile').files[0];
+                
+                if (!name || !file) {
+                    alert('Please provide a name and select an audio file!');
+                    return;
+                }
+                
+                mediaItem = {
+                    id: Date.now(),
+                    type: 'audio',
+                    name,
+                    description,
+                    url: URL.createObjectURL(file),
+                    date: new Date().toISOString()
+                };
+            } 
+            else if (!videoUploadSection.classList.contains('hidden')) {
+                const name = document.getElementById('videoName').value;
+                const description = document.getElementById('videoDescription').value;
+                const file = document.getElementById('videoFile').files[0];
+                
+                if (!name || !file) {
+                    alert('Please provide a name and select a video file!');
+                    return;
+                }
+                
+                mediaItem = {
+                    id: Date.now(),
+                    type: 'video',
+                    name,
+                    description,
+                    url: URL.createObjectURL(file),
+                    date: new Date().toISOString()
+                };
+            }
+            
+            // Add to simulated DB
+            simulatedDB.admin.media.push(mediaItem);
+            
+            // Reload media
+            loadAdminMedia();
+            
+            // Close modal and reset form
+            mediaUploadModal.classList.add('hidden');
+            resetMediaUploadForm();
+            
+            // In a real app, you would notify subscribed users here
+            notifyUsers(mediaItem);
+        });
+        
+        // Profile photo upload
+        document.getElementById('profileUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // In a real app, you would upload to Cloudinary and save the URL
+                    simulatedDB.admin.profilePhoto = event.target.result;
+                    
+                    // Update profile display
+                    profileLetter.classList.add('hidden');
+                    const profileImg = document.createElement('img');
+                    profileImg.src = event.target.result;
+                    profileImg.classList.add('rounded-full', 'h-10', 'w-10', 'object-cover');
+                    profileLetter.parentNode.insertBefore(profileImg, profileLetter.nextSibling);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Helper functions
+        function resetMediaUploadForm() {
+            document.getElementById('photoName').value = '';
+            document.getElementById('photoDescription').value = '';
+            document.getElementById('photoFile').value = '';
+            document.getElementById('photoPreview').classList.add('hidden');
+            
+            document.getElementById('audioName').value = '';
+            document.getElementById('audioDescription').value = '';
+            document.getElementById('audioFile').value = '';
+            document.getElementById('audioPreview').classList.add('hidden');
+            
+            document.getElementById('videoName').value = '';
+            document.getElementById('videoDescription').value = '';
+            document.getElementById('videoFile').value = '';
+            document.getElementById('videoPreview').classList.add('hidden');
+            
+            // Reset active media type
+            mediaTypeBtns.forEach(btn => {
+                btn.classList.remove('bg-blue-100', 'border-blue-500');
+            });
+            
+            // Hide all sections
+            photoUploadSection.classList.add('hidden');
+            audioUploadSection.classList.add('hidden');
+            videoUploadSection.classList.add('hidden');
+        }
+        
+        function resetPasswordForm() {
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+        }
+        
+        function loadAdminMedia() {
+            mediaGallery.innerHTML = '';
+            
+            if (simulatedDB.admin.media.length === 0) {
+                mediaGallery.innerHTML = `
+                    <div class="col-span-3 text-center py-10">
+                        <i class="fas fa-box-open text-gray-400 text-4xl mb-3"></i>
+                        <h3 class="text-lg font-medium text-gray-900">No media uploaded yet</h3>
+                        <p class="mt-1 text-sm text-gray-500">Click the "Add Media" button to get started</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            simulatedDB.admin.media.forEach(media => {
+                const mediaCard = document.createElement('div');
+                mediaCard.className = 'bg-white rounded-lg shadow-md overflow-hidden media-card';
+                
+                let mediaContent = '';
+                if (media.type === 'photo') {
+                    mediaContent = `
+                        <img src="${media.url}" alt="${media.name}" class="w-full h-48 object-cover">
+                    `;
+                } else if (media.type === 'audio') {
+                    mediaContent = `
+                        <div class="bg-gray-100 h-48 flex items-center justify-center">
+                            <i class="fas fa-music text-4xl text-gray-400"></i>
+                        </div>
+                    `;
+                } else if (media.type === 'video') {
+                    mediaContent = `
+                        <div class="bg-gray-100 h-48 flex items-center justify-center">
+                            <i class="fas fa-video text-4xl text-gray-400"></i>
+                        </div>
+                    `;
+                }
+                
+                mediaCard.innerHTML = `
+                    ${mediaContent}
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-medium text-gray-900">${media.name}</h3>
+                                <p class="text-sm text-gray-500 mt-1">${new Date(media.date).toLocaleDateString()}</p>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                ${media.type.charAt(0).toUpperCase() + media.type.slice(1)}
+                            </span>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600">${media.description || 'No description'}</p>
+                        <div class="mt-4 flex justify-between">
+                            <button class="edit-media-btn px-3 py-1 bg-yellow-100 text-yellow-800 rounded-md text-sm hover:bg-yellow-200" data-id="${media.id}">
+                                <i class="fas fa-edit mr-1"></i> Edit
+                            </button>
+                            <button class="delete-media-btn px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm hover:bg-red-200" data-id="${media.id}">
+                                <i class="fas fa-trash mr-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                mediaGallery.appendChild(mediaCard);
+            });
+            
+            // Add event listeners for edit and delete buttons
+            document.querySelectorAll('.edit-media-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const mediaId = parseInt(btn.getAttribute('data-id'));
+                    editMedia(mediaId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-media-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const mediaId = parseInt(btn.getAttribute('data-id'));
+                    if (confirm('Are you sure you want to delete this media item?')) {
+                        deleteMedia(mediaId);
+                    }
+                });
+            });
+        }
+        
+        function editMedia(id) {
+            const mediaItem = simulatedDB.admin.media.find(item => item.id === id);
+            if (!mediaItem) return;
+            
+            // Open the modal with the media item's data
+            mediaUploadModal.classList.remove('hidden');
+            
+            // Show the appropriate section
+            photoUploadSection.classList.add('hidden');
+            audioUploadSection.classList.add('hidden');
+            videoUploadSection.classList.add('hidden');
+            
+            if (mediaItem.type === 'photo') {
+                photoUploadSection.classList.remove('hidden');
+                document.getElementById('photoName').value = mediaItem.name;
+                document.getElementById('photoDescription').value = mediaItem.description || '';
+                // Note: File inputs can't be set programmatically for security reasons
+            } 
+            else if (mediaItem.type === 'audio') {
+                audioUploadSection.classList.remove('hidden');
+                document.getElementById('audioName').value = mediaItem.name;
+                document.getElementById('audioDescription').value = mediaItem.description || '';
+            } 
+            else if (mediaItem.type === 'video') {
+                videoUploadSection.classList.remove('hidden');
+                document.getElementById('videoName').value = mediaItem.name;
+                document.getElementById('videoDescription').value = mediaItem.description || '';
+            }
+            
+            // Update active media type button
+            mediaTypeBtns.forEach(btn => {
+                btn.classList.remove('bg-blue-100', 'border-blue-500');
+                if (btn.getAttribute('data-type') === mediaItem.type) {
+                    btn.classList.add('bg-blue-100', 'border-blue-500');
+                }
+            });
+            
+            // Change the submit button text
+            submitMediaBtn.textContent = 'Update';
+            
+            // Store the ID of the media being edited
+            submitMediaBtn.setAttribute('data-edit-id', id);
+        }
+        
+        function deleteMedia(id) {
+            // In a real app, this would be an API call to your backend
+            simulatedDB.admin.media = simulatedDB.admin.media.filter(item => item.id !== id);
+            loadAdminMedia();
+        }
+        
+        function notifyUsers(mediaItem) {
+            // In a real app, this would send emails to subscribed users
+            console.log(`Notifying users about new ${mediaItem.type}: ${mediaItem.name}`);
+            
+            simulatedDB.users.forEach(user => {
+                if (user.receiveNotifications && user.subscribed) {
+                    console.log(`Email sent to ${user.email} about new content`);
+                    // Here you would actually send an email with a link to the media
+                }
+            });
+        }
+        
+        // Initialize the app
+        function init() {
+            // Check if user is already logged in (in a real app, you'd check session/token)
+            if (simulatedDB.currentAdmin) {
+                authContainer.classList.add('hidden');
+                adminDashboard.classList.remove('hidden');
+                
+                // Set admin info
+                profileLetter.textContent = simulatedDB.currentAdmin.email.charAt(0).toUpperCase();
+                adminEmail.textContent = simulatedDB.currentAdmin.email;
+                
+                // Load media
+                loadAdminMedia();
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>

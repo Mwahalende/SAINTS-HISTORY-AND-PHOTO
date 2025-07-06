@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Subscribe for Notifications</title>
+  <style>
+    body { font-family: Arial; background: #eef; padding: 40px; text-align: center; }
+    form { background: white; padding: 30px; display: inline-block; border-radius: 10px; }
+    input { display: block; margin: 10px auto; padding: 10px; width: 250px; }
+    button { padding: 10px 20px; background: green; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>Subscribe to Media Upload Notifications</h2>
+  <form id="registerForm">
+    <input type="email" name="email" placeholder="Your Email" required />
+    <button type="submit">Subscribe</button>
+  </form>
+
+  <form id="unsubscribeForm" style="margin-top: 20px;">
+    <input type="email" name="email" placeholder="Your Email" required />
+    <button type="submit" style="background:red;">Unsubscribe</button>
+  </form>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const res = await fetch('/register-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (res.ok) {
+        alert("Subscribed successfully!");
+        e.target.reset();
+      } else {
+        alert("You are already subscribed.");
+      }
+    });
+
+    document.getElementById('unsubscribeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      await fetch('/unsubscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      alert("You have been unsubscribed.");
+      e.target.reset();
+    });
+  </script>
+</body>
+</html>
