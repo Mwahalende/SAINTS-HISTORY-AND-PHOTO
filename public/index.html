@@ -6,6 +6,8 @@
   <title>Saints Media Gallery</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
   <style>
     :root {
       --bg-image-light: url('https://images.unsplash.com/photo-1524069634943-d0b6edb9fc96?auto=format&fit=crop&w=1950&q=80');
@@ -432,6 +434,40 @@
   </style>
 </head>
 <body>
+<body>
+  <!-- your main layout, sidebar, content, etc -->
+
+  <!-- Floating Social Bar -->
+  <div class="fixed top-1/2 left-3 transform -translate-y-1/2 z-50 space-y-3">
+    <a href="https://www.linkedin.com/feed/?trk=joogle" target="_blank"
+       class="bg-white dark:bg-gray-800 text-blue-700 hover:bg-blue-700 hover:text-white p-2 rounded-full shadow-md transition">
+      <i class="fab fa-linkedin"></i>
+    </a>
+    <a href="https://youtube.com/@leotito1243?si=kEFSUNqFHNL-hUQp" target="_blank"
+       class="bg-white dark:bg-gray-800 text-red-600 hover:bg-red-600 hover:text-white p-2 rounded-full shadow-md transition">
+      <i class="fab fa-youtube"></i>
+    </a>
+    <a href="https://www.facebook.com/profile.php?id=61556951128477" target="_blank"
+       class="bg-white dark:bg-gray-800 text-blue-600 hover:bg-blue-600 hover:text-white p-2 rounded-full shadow-md transition">
+      <i class="fab fa-facebook"></i>
+    </a>
+    <a href="https://x.com/yourhandle" target="_blank"
+       class="bg-white dark:bg-gray-800 text-gray-600 hover:bg-black hover:text-white p-2 rounded-full shadow-md transition">
+      <i class="fab fa-x-twitter"></i>X
+    </a>
+    <a href="https://wa.me/255686962149" target="_blank"
+       class="bg-white dark:bg-gray-800 text-green-600 hover:bg-green-600 hover:text-white p-2 rounded-full shadow-md transition">
+      <i class="fab fa-whatsapp"></i>
+    </a>
+    <a href="https://github.com/Mwahalende" target="_blank"
+       class="bg-white dark:bg-gray-800 text-green-600 hover:bg-green-600 hover:text-white p-2 rounded-full shadow-md transition">
+      GitHub
+    </a>
+  </div>
+
+  <!-- Scripts (if any) -->
+  <script>/* your JavaScript here */</script>
+</body>
 
   <!-- Additional Div: Animated media slider -->
   <section id="media-slider" aria-label="Media preview slider">
@@ -487,6 +523,37 @@
       <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </div>
   </div>
+
+  <div id="about-section" class="max-w-3xl mx-auto text-center px-4 py-6 text-sm text-gray-700 dark:text-gray-300">
+  <!-- Profile image -->
+  <div class="flex justify-center mb-3">
+    <img src="LEOd.jpg" alt="Leo Tito Mwahalende" class="w-16 h-16 rounded-full border-2 border-indigo-500 shadow-md">
+  </div>
+
+  <!-- English Section -->
+  <div id="about-en">
+    <h2 class="text-lg font-semibold mb-2">About the Developer</h2>
+    <p>
+      I'm <strong>Leo Tito Mwahalende</strong> – a passionate <strong>Full Stack Developer</strong>,
+      <strong>Network Engineer</strong>, and <strong>Electronics System Designer</strong>. I build secure and scalable apps using
+      MongoDB & Node.js, install 5G + BTS systems, and design embedded systems for real-world automation.
+    </p>
+  </div>
+
+  <!-- Swahili Section -->
+  <div id="about-sw" class="hidden">
+    <h2 class="text-lg font-semibold mb-2">Kuhusu Mwandishi</h2>
+    <p>
+      Mimi ni <strong>Leo Tito Mwahalende</strong> – Mtaalamu wa <strong>Full Stack Development</strong>,
+      <strong>Uhandisi wa Mitandao</strong>, na <strong>Ubunifu wa Mifumo ya Kielektroniki</strong>. Ninatengeneza programu salama kwa MongoDB na Node.js,
+      nasimika teknolojia za 5G na BTS, na kubuni mifumo ya kiotomatiki inayotumika kwenye mazingira halisi.
+    </p>
+  </div>
+
+  <!-- Language Toggle -->
+  <button onclick="toggleLang()" class="mt-4 text-indigo-600 hover:underline text-xs">🌐 Toggle Language</button>
+</div>
+
 
   <script>
     let allMedia = [];
@@ -686,5 +753,10 @@
 
     fetchMedia();
   </script>
+  <script>function toggleLang() {
+    document.getElementById('about-en').classList.toggle('hidden');
+    document.getElementById('about-sw').classList.toggle('hidden');
+  }
+</script>
 </body>
 </html>
