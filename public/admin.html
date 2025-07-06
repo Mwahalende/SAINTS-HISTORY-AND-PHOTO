@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media Manager | Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.7; background-color: #ef4444; }
+      50% { transform: scale(1.2); opacity: 1; background-color: #f87171; }
+      100% { transform: scale(0.9); opacity: 0.7; background-color: #ef4444; }
+    }
+    .recording-animation {
+      animation: pulse 1s infinite ease-in-out;
+    }
+    .sidebar-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .media-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #a0aec0;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+  <div class="flex flex-col md:flex-row min-h-screen">
+    <!-- Sidebar -->
+    <div class="bg-gray-900 text-white w-full md:w-64 px-4 py-6 flex flex-col transition-all duration-300">
+      <div class="flex items-center justify-between mb-8">
+        <h1 class="text-xl font-bold">
+          <i class="fas fa-photo-video mr-2"></i> Media Manager
+        </h1>
+        <button id="sidebarToggle" class="md:hidden text-gray-400 hover:text-white">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+      
+      <div class="mb-6 p-3 bg-gray-800 rounded-lg">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="ml-3">
+            <p class="font-medium" id="adminEmail">admin@example.com</p>
+            <p class="text-xs text-gray-400">Administrator</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mb-6">
+        <h3 class="text-xs uppercase font-semibold text-gray-400 mb-2 px-3">Filters</h3>
+        <div class="space-y-2">
+          <input type="text" id="filterName" placeholder="Search by name" class="w-full px-3 py-2 bg-gray-800 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <input type="date" id="filterDate" class="w-full px-3 py-2 bg-gray-800 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <select id="filterType" class="w-full px-3 py-2 bg-gray-800 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            <option value="">All Media Types</option>
+            <option value="photo">Photos</option>
+            <option value="video">Videos</option>
+            <option value="audio">Audio</option>
+          </select>
+          <select id="sortOrder" class="w-full px-3 py-2 bg-gray-800 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            <option value="desc">Newest First</option>
+            <option value="asc">Oldest First</option>
+          </select>
+          <button onclick="loadMedia()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+            <i class="fas fa-filter mr-2"></i> Apply Filters
+          </button>
+        </div>
+      </div>
+      
+      <div class="mt-auto">
+        <button onclick="logout()" class="w-full flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+          <i class="fas fa-sign-out-alt mr-2"></i> Logout
+        </button>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto custom-scrollbar">
+      <div class="p-6">
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">Upload New Media</h2>
+          <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+            <form id="uploadForm" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <input type="text" name="name" placeholder="Media name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                  <select name="type" id="typeSelect" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <option value="">-- Select Media Type --</option>
+                    <option value="photo">Photo</option>
+                    <option value="video">Video</option>
+                    <option value="audio">Audio</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea name="description" placeholder="Media description" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">File</label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                  <div class="space-y-1 text-center">
+                    <div class="flex text-sm text-gray-600">
+                      <label class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none">
+                        <span>Upload a file</span>
+                        <input type="file" name="file" required class="sr-only">
+                      </label>
+                      <p class="pl-1">or drag and drop</p>
+                    </div>
+                    <p class="text-xs text-gray-500">PNG, JPG, MP4, MP3 up to 10MB</p>
+                  </div>
+                </div>
+              </div>
+              
+              <button type="submit" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-6 rounded-md text-sm font-medium transition-colors">
+                <i class="fas fa-upload mr-2"></i> Upload Media
+              </button>
+            </form>
+          </div>
+          
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Record Audio/Video</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Recording Name</label>
+                <input type="text" id="recName" placeholder="Recording name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Recording Type</label>
+                <select id="recType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                  <option value="audio">Record Audio</option>
+                  <option value="video">Record Video</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea id="recDesc" placeholder="Recording description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
+            </div>
+            
+            <div class="mt-6 flex flex-col items-center">
+              <div id="circleWave" class="w-16 h-16 rounded-full bg-red-500 hidden recording-animation flex items-center justify-center text-white">
+                <i class="fas fa-microphone"></i>
+              </div>
+              
+              <div id="recControls" class="mt-4 flex space-x-3">
+                <button onclick="startRecording()" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  <i class="fas fa-record-vinyl mr-2"></i> Start Recording
+                </button>
+                <button onclick="stopRecording()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                  <i class="fas fa-stop mr-2"></i> Stop Recording
+                </button>
+              </div>
+              
+              <div class="mt-4 w-full">
+                <video id="preview" controls class="w-full rounded-md hidden"></video>
+                <audio id="audioPreview" controls class="w-full hidden"></audio>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-8">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">Your Media Library</h2>
+            <div class="text-sm text-gray-500">
+              Showing <span id="mediaCount">0</span> items
+            </div>
+          </div>
+          
+          <div id="mediaList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Media items will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize token and admin data
+    const token = localStorage.getItem('token');
+    const { id: adminId, email } = parseJwt(token);
+    document.getElementById('adminEmail').innerText = email;
+    
+    // Toggle sidebar on mobile
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+      document.querySelector('[class*="bg-gray-900"]').classList.toggle('hidden');
+      document.querySelector('[class*="bg-gray-900"]').classList.toggle('block');
+    });
+
+    function parseJwt(t) {
+      try {
+        return JSON.parse(atob(t.split('.')[1]));
+      } catch (e) {
+        return null;
+      }
+    }
+    
+    // Form submission handler
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      formData.append('adminId', adminId);
+      
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Uploading...';
+      
+      try {
+        const res = await fetch('/upload', { method: 'POST', body: formData });
+        if (res.ok) {
+          showNotification('Media uploaded successfully!', 'success');
+          form.reset();
+          loadMedia();
+        } else {
+          showNotification('Upload failed. Please try again.', 'error');
+        }
+      } catch (error) {
+        showNotification('Network error. Please check your connection.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-upload mr-2"></i> Upload Media';
+      }
+    });
+    
+    // Recording functionality
+    let mediaRecorder;
+    let chunks = [];
+    let stream;
+    
+    async function startRecording() {
+      const name = document.getElementById('recName').value;
+      const desc = document.getElementById('recDesc').value;
+      const type = document.getElementById('recType').value;
+      
+      if (!name || !desc) {
+        showNotification('Please enter name and description before recording', 'warning');
+        return;
+      }
+      
+      try {
+        chunks = [];
+        const constraints = type === 'video' ? { video: true, audio: true } : { audio: true };
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        mediaRecorder = new MediaRecorder(stream);
+        
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        mediaRecorder.onstop = saveRecording;
+        
+        mediaRecorder.start();
+        document.getElementById('circleWave').classList.remove('hidden');
+        document.getElementById('preview').classList.add('hidden');
+        document.getElementById('audioPreview').classList.add('hidden');
+        
+        // Disable start button, enable stop button
+        document.querySelector('#recControls button:nth-child(1)').disabled = true;
+        document.querySelector('#recControls button:nth-child(2)').disabled = false;
+        
+        showNotification('Recording started...', 'info');
+      } catch (error) {
+        showNotification('Could not access media devices: ' + error.message, 'error');
+      }
+    }
+    
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        document.getElementById('circleWave').classList.add('hidden');
+        
+        // Stop all tracks in the stream
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
+        
+        // Re-enable start button, disable stop button
+        document.querySelector('#recControls button:nth-child(1)').disabled = false;
+        document.querySelector('#recControls button:nth-child(2)').disabled = true;
+        
+        showNotification('Recording stopped. Processing...', 'info');
+      }
+    }
+    
+    function saveRecording() {
+      const type = document.getElementById('recType').value;
+      const blob = new Blob(chunks, { type: mediaRecorder.mimeType });
+      const url = URL.createObjectURL(blob);
+      const formData = new FormData();
+      
+      formData.append('file', blob, `${type}-recording-${Date.now()}.webm`);
+      formData.append('name', document.getElementById('recName').value);
+      formData.append('description', document.getElementById('recDesc').value);
+      formData.append('type', type);
+      formData.append('adminId', adminId);
+      
+      if (type === 'video') {
+        const preview = document.getElementById('preview');
+        preview.src = url;
+        preview.classList.remove('hidden');
+      } else {
+        const audioPreview = document.getElementById('audioPreview');
+        audioPreview.src = url;
+        audioPreview.classList.remove('hidden');
+      }
+      
+      fetch('/upload', { method: 'POST', body: formData })
+        .then(res => {
+          if (res.ok) {
+            showNotification('Recording saved successfully!', 'success');
+            loadMedia();
+          } else {
+            showNotification('Failed to save recording', 'error');
+          }
+        })
+        .catch(() => showNotification('Network error while saving recording', 'error'));
+    }
+    
+    // Media management functions
+    async function loadMedia() {
+      const name = document.getElementById('filterName').value;
+      const date = document.getElementById('filterDate').value;
+      const type = document.getElementById('filterType').value;
+      const sortOrder = document.getElementById('sortOrder').value;
+      
+      try {
+        const res = await fetch(`/media?name=${name}&date=${date}&type=${type}&sort=${sortOrder}`);
+        const data = await res.json();
+        const list = document.getElementById('mediaList');
+        list.innerHTML = '';
+        
+        const adminMedia = data.filter(item => item.admin === adminId);
+        document.getElementById('mediaCount').textContent = adminMedia.length;
+        
+        if (adminMedia.length === 0) {
+          list.innerHTML = `
+            <div class="col-span-full py-12 text-center">
+              <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
+              <h3 class="text-lg font-medium text-gray-500">No media found</h3>
+              <p class="text-gray-400 mt-1">Upload or record some media to get started</p>
+            </div>
+          `;
+          return;
+        }
+        
+        adminMedia.forEach(item => {
+          const icon = {
+            photo: 'fa-image',
+            video: 'fa-video',
+            audio: 'fa-music'
+          }[item.type] || 'fa-file';
+          
+          const color = {
+            photo: 'bg-blue-100 text-blue-600',
+            video: 'bg-purple-100 text-purple-600',
+            audio: 'bg-green-100 text-green-600'
+          }[item.type] || 'bg-gray-100 text-gray-600';
+          
+          const div = document.createElement('div');
+          div.className = 'media-card bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-200';
+          div.innerHTML = `
+            <div class="p-5">
+              <div class="flex items-start justify-between mb-3">
+                <div class="w-10 h-10 rounded-lg ${color} flex items-center justify-center">
+                  <i class="fas ${icon}"></i>
+                </div>
+                <div class="flex space-x-2">
+                  <button onclick="editMedia('${item._id}', '${item.name}', '${item.description}')" class="w-8 h-8 flex items-center justify-center bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-md transition-colors">
+                    <i class="fas fa-pencil-alt text-xs"></i>
+                  </button>
+                  <button onclick="deleteMedia('${item._id}')" class="w-8 h-8 flex items-center justify-center bg-red-100 hover:bg-red-200 text-red-600 rounded-md transition-colors">
+                    <i class="fas fa-trash-alt text-xs"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <h3 class="font-semibold text-gray-800 mb-1 truncate">${item.name}</h3>
+              <p class="text-sm text-gray-500 mb-3 line-clamp-2">${item.description}</p>
+              
+              <div class="flex items-center justify-between text-xs text-gray-500 mt-4 pt-3 border-t border-gray-100">
+                <div class="flex items-center space-x-2">
+                  <span class="flex items-center">
+                    <i class="fas fa-heart mr-1 text-red-400"></i> ${item.likes || 0}
+                  </span>
+                  <span class="flex items-center">
+                    <i class="fas fa-thumbs-down mr-1 text-gray-400"></i> ${item.dislikes || 0}
+                  </span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span class="flex items-center">
+                    <i class="fas fa-comment mr-1 text-blue-400"></i> ${item.comments?.length || 0}
+                  </span>
+                  <span class="flex items-center">
+                    <i class="fas fa-bell mr-1 text-yellow-400"></i> ${item.subscribers || 0}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 px-5 py-3 flex justify-between items-center">
+              <span class="text-xs font-medium px-2 py-1 rounded ${color}">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>
+              <a href="${item.url}" target="_blank" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center">
+                View <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+              </a>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      } catch (error) {
+        showNotification('Failed to load media: ' + error.message, 'error');
+      }
+    }
+    
+    async function deleteMedia(id) {
+      if (confirm("Are you sure you want to delete this media item? This action cannot be undone.")) {
+        try {
+          const res = await fetch(`/media/${id}`, { method: 'DELETE' });
+          if (res.ok) {
+            showNotification('Media deleted successfully', 'success');
+            loadMedia();
+          } else {
+            showNotification('Failed to delete media', 'error');
+          }
+        } catch (error) {
+          showNotification('Network error while deleting media', 'error');
+        }
+      }
+    }
+    
+    function editMedia(id, oldName, oldDesc) {
+      const newName = prompt("Edit media name:", oldName);
+      if (newName === null) return;
+      
+      const newDesc = prompt("Edit media description:", oldDesc);
+      if (newDesc === null) return;
+      
+      if (!newName || !newDesc) {
+        showNotification('Name and description cannot be empty', 'warning');
+        return;
+      }
+      
+      fetch(`/media/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName, description: newDesc })
+      })
+      .then(res => {
+        if (res.ok) {
+          showNotification('Media updated successfully', 'success');
+          loadMedia();
+        } else {
+          showNotification('Failed to update media', 'error');
+        }
+      })
+      .catch(() => showNotification('Network error while updating media', 'error'));
+    }
+    
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
+    
+    // Notification system
+    function showNotification(message, type = 'info') {
+      const colors = {
+        info: 'bg-blue-100 text-blue-800',
+        success: 'bg-green-100 text-green-800',
+        warning: 'bg-yellow-100 text-yellow-800',
+        error: 'bg-red-100 text-red-800'
+      };
+      
+      const icon = {
+        info: 'fa-info-circle',
+        success: 'fa-check-circle',
+        warning: 'fa-exclamation-triangle',
+        error: 'fa-times-circle'
+      };
+      
+      const notif = document.createElement('div');
+      notif.className = `fixed top-4 right-4 px-4 py-3 rounded-md shadow-md ${colors[type]} flex items-start max-w-xs z-50 animate-fade-in`;
+      notif.innerHTML = `
+        <i class="fas ${icon[type]} mt-1 mr-3"></i>
+        <div>
+          <p class="text-sm font-medium">${message}</p>
+        </div>
+        <button onclick="this.parentElement.remove()" class="ml-4 text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      
+      document.body.appendChild(notif);
+      
+      setTimeout(() => {
+        notif.classList.add('animate-fade-out');
+        setTimeout(() => notif.remove(), 300);
+      }, 5000);
+    }
+    
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMedia();
+      
+      // Disable stop recording button initially
+      document.querySelector('#recControls button:nth-child(2)').disabled = true;
+      
+      // Add animation classes
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade-out {
+          from { opacity: 1; transform: translateY(0); }
+          to { opacity: 0; transform: translateY(-10px); }
+        }
+        .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+        .animate-fade-out { animation: fade-out 0.3s ease-out forwards; }
+      `;
+      document.head.appendChild(style);
+    });
+  </script>
+</body>
+</html>

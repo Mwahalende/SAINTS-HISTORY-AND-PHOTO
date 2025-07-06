@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Register</title>
+  <style>
+    body { font-family: Arial; background: #f0f0f0; padding: 40px; text-align: center; }
+    form { background: white; padding: 30px; display: inline-block; border-radius: 10px; }
+    input { display: block; margin: 10px auto; padding: 10px; width: 250px; }
+    button { padding: 10px 20px; background: green; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>Admin Registration</h2>
+  <form id="registerForm">
+    <input type="email" name="email" placeholder="Email" required />
+    <input type="password" name="password" placeholder="Password" required />
+    <input type="password" name="confirmPassword" placeholder="Confirm Password" required />
+    <button type="submit">Register</button>
+  </form>
+  <p>Already registered? <a href="login.html">Login here</a></p>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const res = await fetch("/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.get("email"),
+          password: formData.get("password"),
+          confirmPassword: formData.get("confirmPassword")
+        })
+      });
+
+      if (res.ok) {
+        window.location.href = "login.html";
+      } else {
+        const msg = await res.text();
+        alert("Registration failed: " + msg);
+      }
+    });
+  </script>
+</body>
+</html>
